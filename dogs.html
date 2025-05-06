@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog Explorer | INST377</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .dog-display {
+            width: 500px;
+            height: 500px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .dog-image {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .dog-image.active {
+            opacity: 1;
+            z-index: 1;
+        }
+        .dog-image.inactive {
+            opacity: 0;
+            z-index: 0;
+        }
+        .shuffle-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 25px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .shuffle-btn:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="dog-page">
+    <div class="page-wrapper">
+        <header class="site-header">
+            <h1>Dog Explorer</h1>
+            <p class="tagline">INST377 - Class Activities</p>
+        </header>
+
+        <nav class="primary-navigation">
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="index.html">Home</a></li>
+                <li class="nav-item"><a href="stocks.html">Stocks</a></li>
+                <li class="nav-item current"><a href="dogs.html">Dogs</a></li>
+            </ul>
+        </nav>
+
+        <main class="content-main">
+            <section class="gallery-section">
+                <h2>Meet Our Dogs</h2>
+                <div class="dog-display" id="dog-display">
+                    <!-- Dog images will be inserted here by JavaScript -->
+                </div>
+                <button class="shuffle-btn" id="shuffle-btn">Next Dog</button>
+            </section>
+
+            <section class="breeds-section">
+                <h2>Available Breeds</h2>
+                <div class="breed-buttons" id="breed-buttons"></div>
+            </section>
+
+            <section class="info-section">
+                <h2>Breed Information</h2>
+                <div class="breed-info" id="breed-info">
+                    <p>Select a breed to see details</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Dog image carousel with single display
+        document.addEventListener('DOMContentLoaded', function() {
+            const dogDisplay = document.getElementById('dog-display');
+            const shuffleBtn = document.getElementById('shuffle-btn');
+            let currentDogIndex = 0;
+            let dogImages = [];
+            let dogBreeds = new Set();
+
+            // Fetch random dog images
+            fetch('https://dog.ceo/api/breeds/image/random/10')
+                .then(response => response.json())
+                .then(data => {
+                    // Create image elements
+                    data.message.forEach((url, index) => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.className = 'dog-image' + (index === 0 ? ' active' : ' inactive');
+                        img.alt = 'Random dog image';
+                        dogDisplay.appendChild(img);
+                        dogImages.push(img);
+
+                        // Extract breed name
+                        const parts = url.split('/');
+                        const breedPath = parts[parts.indexOf('breeds') + 1];
+                        const breedName = breedPath.split('-')
+                            .reverse()
+                            .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                            .join(' ');
+                        dogBreeds.add(breedName);
+                    });
+
+                    // Create breed buttons
+                    const buttonsContainer = document.getElementById('breed-buttons');
+                    dogBreeds.forEach(breed => {
+                        const btn = document.createElement('button');
+                        btn.className = 'breed-btn';
+                        btn.textContent = breed;
+                        btn.onclick = () => loadBreedInfo(breed);
+                        buttonsContainer.appendChild(btn);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading dogs:', error);
+                    dogDisplay.innerHTML = '<p>Failed to load dogs. Please try again.</p>';
+                });
+
+            // Shuffle functionality
+            shuffleBtn.addEventListener('click', function() {
+                // Fade out current image
+                dogImages[currentDogIndex].classList.remove('active');
+                dogImages[currentDogIndex].classList.add('inactive');
+
+                // Get random next image (different from current)
+                let nextIndex;
+                do {
+                    nextIndex = Math.floor(Math.random() * dogImages.length);
+                } while (nextIndex === currentDogIndex && dogImages.length > 1);
+
+                currentDogIndex = nextIndex;
+
+                
+                dogImages[currentDogIndex].classList.remove('inactive');
+                dogImages[currentDogIndex].classList.add('active');
+            });
+
+
+            setInterval(() => {
+                shuffleBtn.click();
+            }, 5000);
+
+            // Breed info loader
+            window.loadBreedInfo = function(breed) {
+                const infoBox = document.getElementById('breed-info');
+                infoBox.innerHTML = '<p>Loading breed information...</p>';
+
+                fetch(`https://api.thedogapi.com/v1/breeds/search?q=${breed}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.length) throw new Error('Breed not found');
+                        
+                        const info = data[0];
+                        const lifespan = info.life_span ? info.life_span.replace('years', '').trim() : 'Unknown';
+                        
+                        infoBox.innerHTML = `
+                            <h3>${info.name}</h3>
+                            <p><strong>Temperament:</strong> ${info.temperament || 'Not specified'}</p>
+                            <p><strong>Lifespan:</strong> ${lifespan}</p>
+                            <p><strong>Weight:</strong> ${info.weight?.metric || 'Unknown'} kg</p>
+                            <p><strong>Height:</strong> ${info.height?.metric || 'Unknown'} cm</p>
+                        `;
+                    })
+                    .catch(error => {
+                        console.error('Error loading breed info:', error);
+                        infoBox.innerHTML = `<p>Could not load information for ${breed}</p>`;
+                    });
+            };
+        });
+    </script>
+</body>
+</html>
