@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Hub | INST377</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="app.js" defer></script>
+</head>
+<body class="home-page">
+    <div class="page-wrapper">
+        <header class="site-header">
+            <div class="header-content">
+                <h1>INST377 Activity Hub</h1>
+                <p class="tagline">Explore interactive web applications</p>
+            </div>
+        </header>
+
+        <nav class="primary-navigation">
+            <ul class="nav-menu">
+                <li class="nav-item current"><a href="index.html">Home</a></li>
+                <li class="nav-item"><a href="stocks.html">Stock Tracker</a></li>
+                <li class="nav-item"><a href="dogs.html">Dog Explorer</a></li>
+            </ul>
+        </nav>
+
+        <main class="content-main">
+            <section class="welcome-section">
+                <h2>Discover Our Activities</h2>
+                <p class="intro-text">Choose an activity to explore interactive web features and APIs.</p>
+                
+                <div class="activity-buttons">
+                    <a href="stocks.html" class="activity-btn stock-btn">
+                        <span class="btn-icon">📈</span>
+                        <span class="btn-text">Stock Tracker</span>
+                    </a>
+                    <a href="dogs.html" class="activity-btn dog-btn">
+                        <span class="btn-icon">🐕</span>
+                        <span class="btn-text">Dog Explorer</span>
+                    </a>
+                </div>
+            </section>
+
+            <section class="quote-section">
+                <h3>Inspiration for Today</h3>
+                <div class="quote-box" id="daily-quote">
+                    <p class="quote-text">Loading inspirational quote...</p>
+                    <p class="quote-author"></p>
+                </div>
+            </section>
+        </main>
+
+        <aside class="voice-control-panel">
+            <div class="voice-card">
+                <h3>Voice Command Guide</h3>
+                <div class="voice-instructions">
+                    <div class="command-item">
+                        <span class="command-keyword">"Go to [page]"</span>
+                        <span class="command-desc">Navigate to home, stocks, or dogs</span>
+                    </div>
+                    <div class="command-item">
+                        <span class="command-keyword">"Change color to [color]"</span>
+                        <span class="command-desc">Change background color</span>
+                    </div>
+                    <div class="command-item">
+                        <span class="command-keyword">"Hello"</span>
+                        <span class="command-desc">Get a friendly greeting</span>
+                    </div>
+                </div>
+                <div class="voice-toggle">
+                    <button id="voice-on" class="voice-control voice-on">Enable Voice</button>
+                    <button id="voice-off" class="voice-control voice-off">Disable Voice</button>
+                </div>
+            </div>
+        </aside>
+    </div>
+</body>
+</html>
